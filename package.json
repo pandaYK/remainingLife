@@ -13,6 +13,7 @@
   "author": "pandaYK",
   "license": "ISC",
   "dependencies": {
+    "node-fetch": "^2.1.2",
     "xlsx": "^0.12.8"
   }
 }
