@@ -62,7 +62,7 @@ console.log("hello, world");
 })();
 
 async function getLifeTable() {
-  const baseURL = "http://api.e-stat.go.jp/rest/2.1/app";
+  const baseURL = "https://api.e-stat.go.jp/rest/2.1/app";
   const appID = "6e52e69bb11b4255f91f693711fa7376c3c38026";
   const format = "/json";
   const action = "getStatsData";
