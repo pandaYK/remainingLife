@@ -1,8 +1,30 @@
+const fetch = require("node-fetch");
+
 (async () => {
   let resjson = await getLifeTable();
-  let [men, women] =processDeathRates(resjson);
+  let [men, women] = processDeathRates(resjson);
   console.log(men);
   console.log(women);
+
+  // darty d3.js codes
+  let startAge = 24;
+  let surviveRates = [{
+    age: startAge,
+    rate:1
+  }];
+  for (let i = startAge; i < men.length; i++) {
+    surviveRates.push({
+      age: i,
+      rate: surviveRates[i - startAge].rate * (1 - men[i].deathRate)
+    });
+  }
+
+  // vis
+  surviveRates.forEach(point=>{
+    console.log(`${point.age}歳: ${(point.rate*100).toFixed(1)}%`);
+  });
+
+
 })();
 
 async function getLifeTable() {
@@ -26,7 +48,7 @@ function processDeathRates(estatJSON) {
     datum["@cat01"] = parseInt(datum["@cat01"].slice(1, 4));
     return datum
   });
-  const men = yearParsed.filter(datum => datum["@cat02"] == "10").map(datum => {
+  let men = yearParsed.filter(datum => datum["@cat02"] == "10").map(datum => {
     let rd = {
       published: parseInt(datum["@time"].slice(0, 4)),
       sex: "man",
@@ -35,7 +57,7 @@ function processDeathRates(estatJSON) {
     };
     return rd
   });
-  const women = yearParsed.filter(datum => datum["@cat02"] == "20").map(datum => {
+  let women = yearParsed.filter(datum => datum["@cat02"] == "20").map(datum => {
     let rd = {
       published: parseInt(datum["@time"].slice(0, 4)),
       sex: "woman",
@@ -44,5 +66,7 @@ function processDeathRates(estatJSON) {
     };
     return rd
   });
+  men = men.sort((a, b) => a.age - b.age);
+  women = women.sort((a, b) => a.age - b.age);
   return [men, women]
 }
