@@ -1,6 +1,6 @@
 {
   "name": "remaininglife",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Calculate remaining life and its probability",
   "main": "index.html",
   "scripts": {
@@ -10,10 +10,9 @@
     "life",
     "probability"
   ],
-  "author": "pandaYK",
+  "author": "tarepan",
   "license": "ISC",
   "dependencies": {
-    "node-fetch": "^2.1.2",
-    "xlsx": "^0.12.8"
+    "node-fetch": "^2.1.2"
   }
 }
