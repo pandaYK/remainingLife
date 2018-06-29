@@ -33,22 +33,31 @@ console.log("hello, world");
   const marginW = 50;
   const svg = d3.select("svg");
   svg
-    .attr("height", plotHeight + marginH)
-    .attr("width", plotWidth + marginW);
+    .attr("height", plotHeight + 2 * marginH)
+    .attr("width", plotWidth + 2 * marginW);
   const xScale = d3.scaleLinear()
     .domain(d3.extent(survivePercentages, point => point.age))
     .range([0, plotWidth]);
+  const xAxis = d3.axisBottom(xScale);
   const yScale = d3.scaleLinear()
     .domain(d3.extent(survivePercentages, point => point.rate))
     .range([plotHeight, 0]);
+  const yAxis = d3.axisLeft(yScale);
 
   svg.selectAll("point")
     .data(survivePercentages)
     .enter()
     .append("circle")
-    .attr("cx", d => xScale(d.age))
-    .attr("cy", d => yScale(d.rate))
+    .attr("cx", d => marginW + xScale(d.age))
+    .attr("cy", d => marginH + yScale(d.rate))
     .attr("r", 1);
+  svg.append("g")
+    .attr("transform", `translate(${marginW},${marginH+plotHeight})`)
+    .call(xAxis);
+  svg.append("g")
+    .attr("transform", `translate(${marginW},${marginH})`)
+    .call(yAxis);
+
 
 })();
 
