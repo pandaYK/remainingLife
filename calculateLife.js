@@ -1,5 +1,4 @@
-const fetch = require("node-fetch");
-
+console.log("hello, world");
 (async () => {
   let resjson = await getLifeTable();
   let [men, women] = processDeathRates(resjson);
@@ -10,7 +9,7 @@ const fetch = require("node-fetch");
   let startAge = 24;
   let surviveRates = [{
     age: startAge,
-    rate:1
+    rate: 1
   }];
   for (let i = startAge; i < men.length; i++) {
     surviveRates.push({
@@ -20,10 +19,36 @@ const fetch = require("node-fetch");
   }
 
   // vis
-  surviveRates.forEach(point=>{
+  surviveRates.forEach(point => {
     console.log(`${point.age}歳: ${(point.rate*100).toFixed(1)}%`);
   });
 
+  let survivePercentages = surviveRates.map(datum => {
+    datum.rate = datum.rate * 100;
+    return datum;
+  });
+  const plotHeight = 300;
+  const plotWidth = 500;
+  const marginH = 50;
+  const marginW = 50;
+  const svg = d3.select("svg");
+  svg
+    .attr("height", plotHeight + marginH)
+    .attr("width", plotWidth + marginW);
+  const xScale = d3.scaleLinear()
+    .domain(d3.extent(survivePercentages, point => point.age))
+    .range([0, plotWidth]);
+  const yScale = d3.scaleLinear()
+    .domain(d3.extent(survivePercentages, point => point.rate))
+    .range([plotHeight, 0]);
+
+  svg.selectAll("point")
+    .data(survivePercentages)
+    .enter()
+    .append("circle")
+    .attr("cx", d => xScale(d.age))
+    .attr("cy", d => yScale(d.rate))
+    .attr("r", 1);
 
 })();
 
