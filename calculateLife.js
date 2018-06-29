@@ -73,14 +73,33 @@ function updatePlot(data, startAge) {
     datum.rate = datum.rate * 100;
     return datum;
   });
+
+  // message
+  let temp = [{
+    age: startAge,
+    rate: 1
+  }];
+  let flags = [false, false, false];
+  for (let i = startAge; i < men.length; i++) {
+    if(temp[i - startAge].rate * (1 - men[i].deathRate) < 0.50 && !flags[0]){
+      document.querySelector("#message1").textContent = `あなたが${temp[temp.length -1].age}才まで生存する確率は${(temp[temp.length -1].rate*100).toFixed(0)}%`;
+      break;
+    }
+    temp.push({
+      age: i,
+      rate: temp[i - startAge].rate * (1 - men[i].deathRate)
+    });
+  }
+
   const plotHeight = 300;
   const plotWidth = 500;
   const marginH = 50;
-  const marginW = 50;
+  const marginRight = 50;
+  const marginLeft = 130;
   const svg = d3.select("svg");
   svg
     .attr("height", plotHeight + 2 * marginH)
-    .attr("width", plotWidth + 2 * marginW);
+    .attr("width", plotWidth + 2 * (marginLeft + marginRight));
   const xScale = d3.scaleLinear()
     .domain(d3.extent(survivePercentages, point => point.age))
     .range([0, plotWidth]);
@@ -95,24 +114,51 @@ function updatePlot(data, startAge) {
   points.enter()
     .append("circle")
     .classed("point", true)
-    .attr("r", 1)
+    .attr("r", 2)
     .merge(points)
-    .attr("cx", d => marginW + xScale(d.age))
+    .attr("cx", d => marginLeft + xScale(d.age))
     .attr("cy", d => marginH + yScale(d.rate));
   let xAxisGroup = svg.selectAll(".xAxis")
     .data([1]);
   xAxisGroup.enter()
     .append("g")
     .classed("xAxis", true)
-    .attr("transform", `translate(${marginW},${marginH+plotHeight})`)
+    .attr("transform", `translate(${marginLeft},${marginH+plotHeight})`)
     .merge(xAxisGroup)
     .call(xAxis);
+  // text label for the x axis
+  svg.selectAll(".xLabel").data([1]).enter()
+    .append("text")
+    .attr("transform", `translate(${marginLeft + plotWidth/2},${marginH+plotHeight+35})`)
+    .style("text-anchor", "middle")
+    .text("年齢 [才]");
   let yAxisGroup = svg.selectAll(".yAxis")
     .data([1]);
   yAxisGroup.enter()
     .append("g")
     .classed("yAxis", true)
-    .attr("transform", `translate(${marginW},${marginH})`)
+    .attr("transform", `translate(${marginLeft},${marginH})`)
     .merge(yAxisGroup)
     .call(yAxis);
+  // text label for the x axis
+  svg.selectAll(".yLabel").data([1]).enter()
+    .append("text")
+    .attr("transform", `translate(${marginLeft - 70},${marginH + plotHeight/2})`)
+    .style("text-anchor", "middle")
+    .text("生存率 [%]");
+
+  const line = d3.line()
+    .curve(d3.curveBasis)
+    .x(d => xScale(d.age))
+    .y(d => yScale(d.rate));
+  svg.selectAll(".lineGroup").data([1])
+    .enter()
+    .append("g")
+    .classed("lineGroup", true)
+    .append("path")
+    .attr("class", "line")
+    .attr("transform", `translate(${marginLeft},${marginH})`);
+  svg.select(".line")
+    .datum(survivePercentages)
+    .attr("d", line);
 }

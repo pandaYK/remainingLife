@@ -2,17 +2,38 @@
 <html>
 
 <head>
+  <link rel="stylesheet" type="text/css" href="reset.css">
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <style>
+    .line {
+      fill: none;
+      stroke: #424ef4;
+      stroke-width: 1.5px;
+    }
+
+    .message{
+      font-size: 25px;
+    }
+  </style>
   <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
-  <h1>残された命 -Remaining Life</h1>
+  <header>
+    <h1>残された命 -Remaining Life</h1>
+  </header>
   <p>余命を知って、終わりを意識した生き方へ。</p>
   <label>いま私は<input type="number" id="ageInput" value=25>歳</label><br />
-  <input type="button" id="update" value="更新"/><br />
+  <input type="button" id="update" value="更新" /><br />
+  <div id="message1" class="message"></div><br />
+  <!-- <div id="message2" class="message"></div><br />
+  <div id="message3" class="message"></div><br /> -->
   <svg id="deathRateFig"></svg>
   <script src="calculateLife.js"></script>
-
+  <p>data from <a href="https://www.e-stat.go.jp/">e-stat</a></p>
+  <p><sub>
+    「このサービスは、政府統計総合窓口(e-Stat)のAPI機能を使用していますが、サービスの内容は国によって保証されたものではありません。」
+  </sub></p>
 </body>
 
 </html>
