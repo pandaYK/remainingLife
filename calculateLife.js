@@ -2,63 +2,9 @@ console.log("hello, world");
 (async () => {
   let resjson = await getLifeTable();
   let [men, women] = processDeathRates(resjson);
-  console.log(men);
-  console.log(women);
 
-  // darty d3.js codes
-  let startAge = 24;
-  let surviveRates = [{
-    age: startAge,
-    rate: 1
-  }];
-  for (let i = startAge; i < men.length; i++) {
-    surviveRates.push({
-      age: i,
-      rate: surviveRates[i - startAge].rate * (1 - men[i].deathRate)
-    });
-  }
-
-  // vis
-  surviveRates.forEach(point => {
-    console.log(`${point.age}歳: ${(point.rate*100).toFixed(1)}%`);
-  });
-
-  let survivePercentages = surviveRates.map(datum => {
-    datum.rate = datum.rate * 100;
-    return datum;
-  });
-  const plotHeight = 300;
-  const plotWidth = 500;
-  const marginH = 50;
-  const marginW = 50;
-  const svg = d3.select("svg");
-  svg
-    .attr("height", plotHeight + 2 * marginH)
-    .attr("width", plotWidth + 2 * marginW);
-  const xScale = d3.scaleLinear()
-    .domain(d3.extent(survivePercentages, point => point.age))
-    .range([0, plotWidth]);
-  const xAxis = d3.axisBottom(xScale);
-  const yScale = d3.scaleLinear()
-    .domain(d3.extent(survivePercentages, point => point.rate))
-    .range([plotHeight, 0]);
-  const yAxis = d3.axisLeft(yScale);
-
-  svg.selectAll("point")
-    .data(survivePercentages)
-    .enter()
-    .append("circle")
-    .attr("cx", d => marginW + xScale(d.age))
-    .attr("cy", d => marginH + yScale(d.rate))
-    .attr("r", 1);
-  svg.append("g")
-    .attr("transform", `translate(${marginW},${marginH+plotHeight})`)
-    .call(xAxis);
-  svg.append("g")
-    .attr("transform", `translate(${marginW},${marginH})`)
-    .call(yAxis);
-
-
+  let startAge = document.querySelector("#ageInput").value;
+  updatePlot([men, women], startAge);
 })();
 
 async function getLifeTable() {
@@ -103,4 +49,51 @@ function processDeathRates(estatJSON) {
   men = men.sort((a, b) => a.age - b.age);
   women = women.sort((a, b) => a.age - b.age);
   return [men, women]
+}
+
+function updatePlot(data, startAge){
+  const [men, women] = data;
+  let surviveRates = [{
+    age: startAge,
+    rate: 1
+  }];
+  for (let i = startAge; i < men.length; i++) {
+    surviveRates.push({
+      age: i,
+      rate: surviveRates[i - startAge].rate * (1 - men[i].deathRate)
+    });
+  }
+  let survivePercentages = surviveRates.map(datum => {
+    datum.rate = datum.rate * 100;
+    return datum;
+  });
+  const plotHeight = 300;
+  const plotWidth = 500;
+  const marginH = 50;
+  const marginW = 50;
+  const svg = d3.select("svg");
+  svg
+  .attr("height", plotHeight + 2 * marginH)
+  .attr("width", plotWidth + 2 * marginW);
+  const xScale = d3.scaleLinear()
+  .domain(d3.extent(survivePercentages, point => point.age))
+  .range([0, plotWidth]);
+  const xAxis = d3.axisBottom(xScale);
+  const yScale = d3.scaleLinear()
+  .domain(d3.extent(survivePercentages, point => point.rate))
+  .range([plotHeight, 0]);
+  const yAxis = d3.axisLeft(yScale);
+  svg.selectAll("point")
+  .data(survivePercentages)
+  .enter()
+  .append("circle")
+  .attr("cx", d => marginW + xScale(d.age))
+  .attr("cy", d => marginH + yScale(d.rate))
+  .attr("r", 1);
+  svg.append("g")
+  .attr("transform", `translate(${marginW},${marginH+plotHeight})`)
+  .call(xAxis);
+  svg.append("g")
+  .attr("transform", `translate(${marginW},${marginH})`)
+  .call(yAxis);
 }
