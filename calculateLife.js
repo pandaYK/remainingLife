@@ -2,9 +2,9 @@ console.log("hello, world");
 (async () => {
   let resjson = await getLifeTable();
   let [men, women] = processDeathRates(resjson);
-
-  let startAge = document.querySelector("#ageInput").value;
-  updatePlot([men, women], startAge);
+  document.DeathRates = [men, women];
+  update();
+  document.querySelector("#update").addEventListener("click", update);
 })();
 
 async function getLifeTable() {
@@ -51,7 +51,13 @@ function processDeathRates(estatJSON) {
   return [men, women]
 }
 
-function updatePlot(data, startAge){
+function update() {
+  console.log("update!");
+  const startAge = document.querySelector("#ageInput").value;
+  updatePlot(document.DeathRates, startAge);
+}
+
+function updatePlot(data, startAge) {
   const [men, women] = data;
   let surviveRates = [{
     age: startAge,
@@ -73,27 +79,40 @@ function updatePlot(data, startAge){
   const marginW = 50;
   const svg = d3.select("svg");
   svg
-  .attr("height", plotHeight + 2 * marginH)
-  .attr("width", plotWidth + 2 * marginW);
+    .attr("height", plotHeight + 2 * marginH)
+    .attr("width", plotWidth + 2 * marginW);
   const xScale = d3.scaleLinear()
-  .domain(d3.extent(survivePercentages, point => point.age))
-  .range([0, plotWidth]);
+    .domain(d3.extent(survivePercentages, point => point.age))
+    .range([0, plotWidth]);
   const xAxis = d3.axisBottom(xScale);
   const yScale = d3.scaleLinear()
-  .domain(d3.extent(survivePercentages, point => point.rate))
-  .range([plotHeight, 0]);
+    .domain(d3.extent(survivePercentages, point => point.rate))
+    .range([plotHeight, 0]);
   const yAxis = d3.axisLeft(yScale);
-  svg.selectAll("point")
-  .data(survivePercentages)
-  .enter()
-  .append("circle")
-  .attr("cx", d => marginW + xScale(d.age))
-  .attr("cy", d => marginH + yScale(d.rate))
-  .attr("r", 1);
-  svg.append("g")
-  .attr("transform", `translate(${marginW},${marginH+plotHeight})`)
-  .call(xAxis);
-  svg.append("g")
-  .attr("transform", `translate(${marginW},${marginH})`)
-  .call(yAxis);
+  const points = svg.selectAll(".point")
+    .data(survivePercentages);
+  points.exit().remove();
+  points.enter()
+    .append("circle")
+    .classed("point", true)
+    .attr("r", 1)
+    .merge(points)
+    .attr("cx", d => marginW + xScale(d.age))
+    .attr("cy", d => marginH + yScale(d.rate));
+  let xAxisGroup = svg.selectAll(".xAxis")
+    .data([1]);
+  xAxisGroup.enter()
+    .append("g")
+    .classed("xAxis", true)
+    .attr("transform", `translate(${marginW},${marginH+plotHeight})`)
+    .merge(xAxisGroup)
+    .call(xAxis);
+  let yAxisGroup = svg.selectAll(".yAxis")
+    .data([1]);
+  yAxisGroup.enter()
+    .append("g")
+    .classed("yAxis", true)
+    .attr("transform", `translate(${marginW},${marginH})`)
+    .merge(yAxisGroup)
+    .call(yAxis);
 }
